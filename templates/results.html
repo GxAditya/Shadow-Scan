@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Analysis Results</h4>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> New Analysis
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="analysis-result result-{{ results.verdict.lower() }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            {% if results.verdict == 'Clean' %}
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            {% elif results.verdict == 'Malicious' %}
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                            {% else %}
+                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                            {% endif %}
+                            Verdict: {{ results.verdict }}
+                        </h5>
+                        <span class="badge {% if results.risk_level == 'high' %}bg-danger{% elif results.risk_level == 'medium' %}bg-warning{% else %}bg-success{% endif %}">
+                            Risk Level: {{ results.risk_level|title }}
+                        </span>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6>File Information:</h6>
+                        <p class="mb-1"><strong>Type:</strong> {{ results.file_type }}</p>
+                        {% if results.analysis_details.pe_analysis %}
+                            <p class="mb-1"><strong>Machine Type:</strong> {{ results.analysis_details.pe_analysis.machine_type }}</p>
+                            <p class="mb-1"><strong>Entry Point:</strong> {{ results.analysis_details.pe_analysis.entry_point }}</p>
+                            {% if results.analysis_details.pe_analysis.compile_time %}
+                                <p class="mb-1"><strong>Compile Time:</strong> {{ results.analysis_details.pe_analysis.compile_time }}</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    {% if results.risk_factors %}
+                        <div class="mb-4">
+                            <h6>Risk Factors Detected:</h6>
+                            {% set categories = {} %}
+                            {% for factor in results.risk_factors %}
+                                {% if factor.category not in categories %}
+                                    {% set _ = categories.update({factor.category: []}) %}
+                                {% endif %}
+                                {% set _ = categories[factor.category].append(factor) %}
+                            {% endfor %}
+
+                            <div class="accordion" id="riskFactorAccordion">
+                                {% for category, factors in categories.items() %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" 
+                                                    type="button" data-bs-toggle="collapse" 
+                                                    data-bs-target="#category{{ loop.index }}">
+                                                {{ category }} ({{ factors|length }})
+                                            </button>
+                                        </h2>
+                                        <div id="category{{ loop.index }}" 
+                                             class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                                             data-bs-parent="#riskFactorAccordion">
+                                            <div class="accordion-body">
+                                                {% for factor in factors %}
+                                                    <div class="risk-factor mb-3">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <h6 class="mb-1">
+                                                                <span class="badge {% if factor.severity == 'high' %}bg-danger{% elif factor.severity == 'medium' %}bg-warning{% else %}bg-info{% endif %} me-2">
+                                                                    {{ factor.severity|title }}
+                                                                </span>
+                                                                {{ factor.name }}
+                                                            </h6>
+                                                        </div>
+                                                        <p class="mb-0 text-muted">{{ factor.description }}</p>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if results.analysis_details.pe_analysis %}
+                        <div class="mb-4">
+                            <h6>PE Analysis Details:</h6>
+                            <div class="pe-details">
+                                <p class="mb-1"><strong>Machine Type:</strong> {{ results.analysis_details.pe_analysis.machine_type }}</p>
+                                <p class="mb-1"><strong>Entry Point:</strong> {{ results.analysis_details.pe_analysis.entry_point }}</p>
+                                
+                                {% if results.analysis_details.pe_analysis.suspicious_sections %}
+                                    <div class="mt-2">
+                                        <strong>Suspicious Sections:</strong>
+                                        <ul class="list-unstyled">
+                                            {% for section in results.analysis_details.pe_analysis.suspicious_sections %}
+                                                <li><i class="bi bi-dot"></i> {{ section }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if results.analysis_details.pe_analysis.suspicious_imports %}
+                                    <div class="mt-2">
+                                        <strong>Suspicious Imports:</strong>
+                                        <ul class="list-unstyled">
+                                            {% for import in results.analysis_details.pe_analysis.suspicious_imports %}
+                                                <li><i class="bi bi-dot"></i> {{ import }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

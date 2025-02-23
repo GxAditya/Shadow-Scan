@@ -1,0 +1,52 @@
+/* Custom styles to complement Bootstrap dark theme */
+[data-bs-theme=dark] {
+    --custom-border-color: rgba(255, 255, 255, 0.1);
+}
+
+.file-upload-container {
+    border: 2px dashed var(--custom-border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.file-upload-container:hover {
+    border-color: var(--bs-primary);
+}
+
+.analysis-result {
+    border-left: 4px solid;
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+.result-clean {
+    border-left-color: var(--bs-success);
+}
+
+.result-malicious {
+    border-left-color: var(--bs-danger);
+}
+
+.result-suspicious {
+    border-left-color: var(--bs-warning);
+}
+
+.risk-factor {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    border-radius: 4px;
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+}
+
+#progress-div {
+    display: none;
+    margin-top: 1rem;
+}
+
+.file-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--bs-secondary);
+}
