@@ -2,8 +2,13 @@ import os
 import magic
 from werkzeug.utils import secure_filename
 
-ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx'}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx'}
+# Parse MAX_CONTENT_LENGTH properly, handling potential comment in the value
+try:
+    max_content_length = os.environ.get('MAX_CONTENT_LENGTH', '10485760')  # Default: 10MB
+    MAX_FILE_SIZE = int(max_content_length.split('#')[0].strip())
+except (ValueError, AttributeError):
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # Default to 10MB if parsing fails
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -38,6 +43,10 @@ def validate_file(file):
     elif extension == 'pdf' and 'PDF' not in file_type:
         return False
     elif extension in ['xls', 'xlsx'] and 'Microsoft Excel' not in file_type:
+        return False
+    elif extension in ['ppt', 'pptx'] and 'Microsoft PowerPoint' not in file_type:
+        return False
+    elif extension == 'txt' and 'text' not in file_type.lower():
         return False
 
     return True

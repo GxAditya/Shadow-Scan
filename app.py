@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 from utils.file_validator import validate_file
 from utils.analyzer import analyze_file
@@ -15,9 +15,14 @@ logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 
 # File upload settings
-UPLOAD_FOLDER = '/tmp/uploads'
-MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB limit
-ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx'}
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', '/tmp/uploads')
+# Parse MAX_CONTENT_LENGTH properly, handling potential comment in the value
+try:
+    max_content_length = os.environ.get('MAX_CONTENT_LENGTH', '10485760')  # Default: 10MB
+    MAX_CONTENT_LENGTH = int(max_content_length.split('#')[0].strip())
+except (ValueError, AttributeError):
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # Default to 10MB if parsing fails
+ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx'}
 
 # Create app
 app = Flask(__name__)
@@ -65,19 +70,19 @@ def index():
 @app.route('/analyze', methods=['POST'])
 def analyze():
     if 'file' not in request.files:
-        flash('No file selected', 'error')
-        return redirect(url_for('index'))
+        # flash('No file selected', 'error') # Flash messages might not work well with AJAX by default
+        return jsonify({'error': 'No file selected'}), 400
 
     file = request.files['file']
     if file.filename == '':
-        flash('No file selected', 'error')
-        return redirect(url_for('index'))
+        # flash('No file selected', 'error')
+        return jsonify({'error': 'No file selected'}), 400
 
     try:
         # Validate file
         if not validate_file(file):
-            flash('Invalid file type or size', 'error')
-            return redirect(url_for('index'))
+            # flash('Invalid file type or size', 'error')
+            return jsonify({'error': 'Invalid file type or size'}), 400
 
         # Secure the filename and save
         filename = secure_filename(file.filename)
@@ -102,12 +107,16 @@ def analyze():
         # Clean up
         os.remove(filepath)
 
-        return render_template('results.html', results=results)
+        results_html = render_template('results.html', results=results)
+        return jsonify({'html_content': results_html})
+        # Alternatively, to redirect to a new page showing results:
+        # session['analysis_results'] = results # Store results in session
+        # return jsonify({'redirect_url': url_for('show_results')})
 
     except Exception as e:
         logger.error(f"Error processing file: {str(e)}")
-        flash('An error occurred while processing the file', 'error')
-        return redirect(url_for('index'))
+        # flash('An error occurred while processing the file', 'error')
+        return jsonify({'error': 'An error occurred while processing the file'}), 500
 
 @app.route('/history')
 def scan_history():
@@ -116,5 +125,9 @@ def scan_history():
 
 @app.errorhandler(413)
 def too_large(e):
+    # flash('File is too large. Maximum size is 10MB.', 'error')
+    if request.is_json or (request.headers.get('X-Requested-With') == 'XMLHttpRequest'):
+        return jsonify(error='File is too large. Maximum size is 10MB.'), 413
+    # Fallback for non-AJAX requests or if client doesn't specify accept json
     flash('File is too large. Maximum size is 10MB.', 'error')
     return redirect(url_for('index'))

@@ -1,3 +1,6 @@
+# Environment variables
+.env
+
 # Python
 __pycache__/
 *.py[cod]
@@ -22,21 +25,28 @@ var/
 
 # Virtual Environment
 venv/
+env/
 ENV/
 
-# IDE
+# IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Replit specific
-.replit
-.breakpoints
-replit.nix
-poetry.lock
-
-# Project specific
-/tmp/
+# Logs
+logs/
 *.log
+
+# Temporary files
+/tmp/
+/temp/
+
+# Database
+*.db
+*.sqlite3
+
+# Uploaded files (temporary storage)
+/tmp/uploads/
+myenv/
 .env
