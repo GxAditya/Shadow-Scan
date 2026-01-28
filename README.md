@@ -4,15 +4,38 @@ ShadowScan is a comprehensive web-based static file analysis platform for advanc
 
 ## Features
 
-- Static analysis of multiple file formats (EXE, DLL, DOC, DOCX, PDF, XLS, XLSX, TXT, PPT, PPTX)
-- YARA rules integration for malware pattern detection
-- Detailed risk factor analysis and reporting
-- PE file analysis with comprehensive security checks
-- Document analysis for potential threats
-- Scan history tracking with PostgreSQL database
-- Dark-themed responsive web interface
-- File upload validation and progress tracking
-- Secure file handling with automatic deletion after analysis
+- **Comprehensive Malware Detection** - 30+ YARA rules covering all major malware families:
+  - Ransomware, Trojans, Backdoors, Cryptominers
+  - Keyloggers, Spyware, Worms, Viruses
+  - Rootkits, Web Shells, Fileless malware
+  - Anti-analysis techniques and obfuscation
+  
+- **Enhanced PE File Analysis** - 85+ suspicious API imports detection with severity levels:
+  - Memory operations, process injection, code execution
+  - Network operations, registry manipulation
+  - Anti-debugging, anti-VM techniques
+  - Packer detection (UPX, MPRESS, Themida, VMProtect, etc.)
+  
+- **Script File Analysis** - NEW support for PowerShell, VBScript, JavaScript, and Batch files:
+  - Code execution and download detection
+  - Obfuscation and encoding detection
+  - Command injection patterns
+  
+- **Document Analysis** - Enhanced detection for malicious documents:
+  - PDF: JavaScript, auto-actions, launch actions
+  - Office: Macros, embedded objects, OLE analysis
+  
+- **Multi-Format Support** - Static analysis of multiple file formats:
+  - Executables: EXE, DLL
+  - Documents: DOC, DOCX, PDF, XLS, XLSX, PPT, PPTX
+  - Scripts: PS1, VBS, JS, BAT, CMD
+  - Archives: ZIP, RAR
+  - Text: TXT
+  
+- **Advanced Risk Assessment** - 4-level risk system (Critical/High/Medium/Low)
+- **Scan History Tracking** - PostgreSQL database for historical analysis
+- **Dark-themed Responsive Web Interface**
+- **Secure File Handling** - Automatic deletion after analysis
 
 ## Technical Stack
 

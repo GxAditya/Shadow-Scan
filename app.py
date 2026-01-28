@@ -22,7 +22,7 @@ try:
     MAX_CONTENT_LENGTH = int(max_content_length.split('#')[0].strip())
 except (ValueError, AttributeError):
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # Default to 10MB if parsing fails
-ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx'}
+ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx', 'ps1', 'vbs', 'js', 'bat', 'cmd', 'zip', 'rar'}
 
 # Create app
 app = Flask(__name__)
