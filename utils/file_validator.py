@@ -2,7 +2,7 @@ import os
 import magic
 from werkzeug.utils import secure_filename
 
-ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx'}
+ALLOWED_EXTENSIONS = {'exe', 'dll', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'ppt', 'pptx', 'ps1', 'vbs', 'js', 'bat', 'cmd', 'zip', 'rar'}
 # Parse MAX_CONTENT_LENGTH properly, handling potential comment in the value
 try:
     max_content_length = os.environ.get('MAX_CONTENT_LENGTH', '10485760')  # Default: 10MB
@@ -36,17 +36,25 @@ def validate_file(file):
 
     # Validate file type matches extension
     extension = file.filename.rsplit('.', 1)[1].lower()
-    if extension == 'exe' and 'PE32' not in file_type:
+    if extension == 'exe' and 'PE32' not in file_type and 'MS-DOS executable' not in file_type:
         return False
-    elif extension in ['doc', 'docx'] and 'Microsoft Word' not in file_type:
+    elif extension == 'dll' and 'PE32' not in file_type and 'MS-DOS executable' not in file_type:
+        return False
+    elif extension in ['doc', 'docx'] and 'Microsoft Word' not in file_type and 'Composite Document' not in file_type:
         return False
     elif extension == 'pdf' and 'PDF' not in file_type:
         return False
-    elif extension in ['xls', 'xlsx'] and 'Microsoft Excel' not in file_type:
+    elif extension in ['xls', 'xlsx'] and 'Microsoft Excel' not in file_type and 'Composite Document' not in file_type:
         return False
-    elif extension in ['ppt', 'pptx'] and 'Microsoft PowerPoint' not in file_type:
+    elif extension in ['ppt', 'pptx'] and 'Microsoft PowerPoint' not in file_type and 'Composite Document' not in file_type:
         return False
     elif extension == 'txt' and 'text' not in file_type.lower():
+        return False
+    elif extension in ['ps1', 'vbs', 'js', 'bat', 'cmd'] and 'text' not in file_type.lower() and 'script' not in file_type.lower():
+        return False
+    elif extension == 'zip' and 'Zip' not in file_type and 'compressed' not in file_type.lower():
+        return False
+    elif extension == 'rar' and 'RAR' not in file_type:
         return False
 
     return True
