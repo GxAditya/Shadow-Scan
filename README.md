@@ -34,6 +34,10 @@ ShadowScan is a Flask-based static analysis platform for inspecting suspicious f
 - Archives: `zip`, `rar`
 - Text: `txt`
 
+# Screenshots
+
+![ShadowScan UI](static/readme/1.png)
+
 ## Stack
 
 - Backend: Flask, SQLAlchemy
