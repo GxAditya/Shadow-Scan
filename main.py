@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
-from app import app
 
 # Load environment variables from .env file if it exists
 load_dotenv()
+
+from app import app
 
 if __name__ == "__main__":
     # Get port from environment variable or use default

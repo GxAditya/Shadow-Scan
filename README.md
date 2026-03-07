@@ -1,150 +1,181 @@
-# ShadowScan: Static File Analysis Platform
+<div align="center">
+  <img src="static/readme/shadow-scan-shield.svg" alt="ShadowScan shield logo" width="96" />
+  <h1>ShadowScan</h1>
+  <p>Static file analysis for malware triage, suspicious artifact detection, and scan history tracking.</p>
 
-ShadowScan is a comprehensive web-based static file analysis platform for advanced malware detection, offering detailed risk factor reporting and secure file analysis capabilities.
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+" />
+    <img src="https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white" alt="Flask 3.x" />
+    <img src="https://img.shields.io/badge/PostgreSQL-14-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 14" />
+    <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker Compose" />
+    <img src="https://img.shields.io/badge/Analysis-Static%20Only-111827" alt="Static analysis only" />
+    <img src="https://img.shields.io/badge/YARA-Rule%20Based-2563EB" alt="YARA rule based" />
+  </p>
+</div>
 
-## Features
+## Overview
 
-- **Comprehensive Malware Detection** - 30+ YARA rules covering all major malware families:
-  - Ransomware, Trojans, Backdoors, Cryptominers
-  - Keyloggers, Spyware, Worms, Viruses
-  - Rootkits, Web Shells, Fileless malware
-  - Anti-analysis techniques and obfuscation
-  
-- **Enhanced PE File Analysis** - 85+ suspicious API imports detection with severity levels:
-  - Memory operations, process injection, code execution
-  - Network operations, registry manipulation
-  - Anti-debugging, anti-VM techniques
-  - Packer detection (UPX, MPRESS, Themida, VMProtect, etc.)
-  
-- **Script File Analysis** - NEW support for PowerShell, VBScript, JavaScript, and Batch files:
-  - Code execution and download detection
-  - Obfuscation and encoding detection
-  - Command injection patterns
-  
-- **Document Analysis** - Enhanced detection for malicious documents:
-  - PDF: JavaScript, auto-actions, launch actions
-  - Office: Macros, embedded objects, OLE analysis
-  
-- **Multi-Format Support** - Static analysis of multiple file formats:
-  - Executables: EXE, DLL
-  - Documents: DOC, DOCX, PDF, XLS, XLSX, PPT, PPTX
-  - Scripts: PS1, VBS, JS, BAT, CMD
-  - Archives: ZIP, RAR
-  - Text: TXT
-  
-- **Advanced Risk Assessment** - 4-level risk system (Critical/High/Medium/Low)
-- **Scan History Tracking** - PostgreSQL database for historical analysis
-- **Dark-themed Responsive Web Interface**
-- **Secure File Handling** - Automatic deletion after analysis
+ShadowScan is a Flask-based static analysis platform for inspecting suspicious files without executing them. It combines YARA rules, PE import analysis, document checks, and script inspection to produce a verdict, risk level, and historical scan record.
 
-## Technical Stack
+## Highlights
 
-- **Backend**: Python (Flask)
-- **Database**: PostgreSQL
-- **Analysis Tools**: 
-  - YARA for pattern matching
-  - pefile for PE file analysis
-  - python-magic for file type detection
-- **Frontend**: Bootstrap 5 with dark theme and JavaScript for interactive elements
+- Malware detection with 30+ YARA rules covering ransomware, trojans, backdoors, cryptominers, spyware, worms, rootkits, fileless patterns, and anti-analysis behavior.
+- PE analysis with 85+ suspicious API import checks, including process injection, memory manipulation, anti-debugging, registry changes, and packer indicators.
+- Script inspection for PowerShell, VBScript, JavaScript, Batch, and CMD files.
+- Document-focused checks for PDFs and Office files, including macro, embedded object, JavaScript, and launch-action signals.
+- Scan history persistence in PostgreSQL.
+- Responsive web UI for file upload, analysis results, and history review.
 
-## Setup Instructions
+## Supported File Types
+
+- Executables: `exe`, `dll`
+- Documents: `doc`, `docx`, `pdf`, `xls`, `xlsx`, `ppt`, `pptx`
+- Scripts: `ps1`, `vbs`, `js`, `bat`, `cmd`
+- Archives: `zip`, `rar`
+- Text: `txt`
+
+## Stack
+
+- Backend: Flask, SQLAlchemy
+- Database: PostgreSQL
+- Detection: YARA, `pefile`, `python-magic`
+- Frontend: Bootstrap 5, Bootstrap Icons, vanilla JavaScript
+- Deployment: Docker Compose
+
+## Quick Start With Docker
+
+Use Docker if you want the fastest path to a working environment.
+
+```bash
+git clone https://github.com/GxAditya/ShadowScan.git
+cd ShadowScan
+docker compose up -d --build
+```
+
+Open the application at `http://localhost:5000`.
+
+Useful commands:
+
+```bash
+docker compose ps
+docker compose logs -f web
+docker compose down
+```
+
+## Local Development Setup
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- PostgreSQL database
-- For Windows users: Visual C++ Build Tools for yara-python
+- Python 3.10 or newer
+- PostgreSQL
+- `libmagic` runtime installed on your system
+- For Windows: Visual C++ Build Tools for `yara-python`
 
-### Installation
+### 1. Clone the repository
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/GxAditya/Static-File-Analysis
-cd static-file-analysis
+git clone https://github.com/GxAditya/ShadowScan.git
+cd ShadowScan
 ```
 
-2. Set up environment variables:
+### 2. Create and activate a virtual environment
 
-For Windows:
-```cmd
-set DATABASE_URL=your-postgresql-database-url
-set SESSION_SECRET=your-session-secret
-```
+Linux and macOS:
 
-For Linux/Mac:
 ```bash
-export DATABASE_URL="your-postgresql-database-url"
-export SESSION_SECRET="your-session-secret"
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-Alternatively, create a `.env` file in the project root with these variables.
+Windows PowerShell:
 
-3. Install dependencies:
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Windows-specific YARA installation
+### 4. Configure environment variables
 
-YARA requires additional setup on Windows:
+Create a `.env` file in the project root:
 
-1. Install Visual C++ Build Tools:
-   - Download from [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-   - Select "C++ build tools" during installation
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/malware_analysis
+SESSION_SECRET=replace-this-with-a-secure-random-value
+UPLOAD_FOLDER=/tmp/uploads
+MAX_CONTENT_LENGTH=10485760
+DEBUG=False
+```
 
-2. Install YARA from source:
-   ```cmd
-   git clone https://github.com/VirusTotal/yara.git
-   cd yara
-   python setup.py build
-   python setup.py install
-   ```
+Environment variable reference:
 
-### Running the Application
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string used by Flask SQLAlchemy |
+| `SESSION_SECRET` | Yes | Secret key for Flask session handling |
+| `UPLOAD_FOLDER` | No | Temporary folder for uploaded files |
+| `MAX_CONTENT_LENGTH` | No | Max upload size in bytes, default `10485760` |
+| `DEBUG` | No | Enables Flask debug mode when set to `True` |
 
-1. Initialize the database:
+### 5. Create the database schema
+
+Make sure PostgreSQL is running and the target database exists, then initialize the tables:
+
 ```bash
 python scripts/setup_db.py
 ```
 
-2. Run the application:
+### 6. Start the app
+
 ```bash
 python main.py
 ```
 
-The application will be available at `http://localhost:5000`
+The app will be available at `http://localhost:5000`.
 
-## Docker Deployment
+## Windows Notes For YARA
 
-For easier deployment, you can use Docker Compose:
+If `yara-python` fails to install on Windows:
 
-```bash
-docker-compose up -d
+1. Install Visual C++ Build Tools from Microsoft.
+2. During setup, select the C++ workload.
+3. Re-run `pip install -r requirements.txt`.
+
+If you still need a manual YARA build:
+
+```cmd
+git clone https://github.com/VirusTotal/yara.git
+cd yara
+python setup.py build
+python setup.py install
 ```
 
-This will start both the web application and PostgreSQL database.
+## Custom YARA Rules
 
-## Adding Custom YARA Rules
-
-You can add custom YARA rules using the provided script:
+Use the helper script to add new rules:
 
 ```bash
 python scripts/add_yara_rule.py --name "CustomRule" --description "Detects custom patterns" --severity "medium"
 ```
 
-Then enter your YARA rule content or provide a file with the `--file` option.
+You can paste the rule content interactively or pass a file with `--file`.
 
-## Security Considerations
+## Security Notes
 
-- Maximum file size: 10MB
-- Files are analyzed using static analysis only
-- No sensitive or personal files should be uploaded
-- All uploaded files are automatically deleted after analysis
-- File type validation to prevent malicious uploads
-- Secure filename handling to prevent path traversal attacks
+- Maximum upload size is 10 MB by default.
+- Files are analyzed statically and are not executed.
+- Uploaded files should be treated as sensitive and short-lived.
+- Files are deleted after analysis.
+- Path traversal is mitigated with secure filename handling.
 
-## Performance Considerations
+## Operational Notes
 
-- Asynchronous file processing for better user experience
-- Efficient static analysis algorithms to minimize processing time
-- Database connection pooling for improved concurrent request handling
+- Docker deployment starts both the Flask app and PostgreSQL.
+- The web service listens on `localhost:5000`.
+- The database service listens on `localhost:5432`.
+- Scan history is persisted in the Docker volume `postgres_data`.

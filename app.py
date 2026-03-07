@@ -1,6 +1,7 @@
 import os
 import logging
-from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
+import time
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from utils.file_validator import validate_file
 from utils.analyzer import analyze_file
@@ -59,13 +60,38 @@ class ScanLog(db.Model):
     def __repr__(self):
         return f'<ScanLog {self.filename}>'
 
-# Create tables
-with app.app_context():
-    db.create_all()
+def initialize_database(max_attempts=10, delay_seconds=3):
+    """Retry initial schema creation so container startup survives DB warm-up."""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            with app.app_context():
+                db.create_all()
+            logger.info("Database initialization succeeded")
+            return
+        except Exception:
+            logger.exception(
+                "Database initialization failed on attempt %s/%s",
+                attempt,
+                max_attempts,
+            )
+            if attempt == max_attempts:
+                raise
+            time.sleep(delay_seconds)
+
+
+initialize_database()
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.svg',
+        mimetype='image/svg+xml'
+    )
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
